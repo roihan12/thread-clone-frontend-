@@ -33,7 +33,6 @@ const HomePage = () => {
     getFeedPosts();
   }, [showToast]);
 
-  console.log("all posts", posts);
   return (
     <>
       {!loading && posts.length === 0 && (

@@ -1,18 +1,37 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Flex, Avatar, Box, Text, Image } from "@chakra-ui/react";
+import {
+  Flex,
+  Avatar,
+  Box,
+  Text,
+  Image,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  Button,
+} from "@chakra-ui/react";
 import { BsThreeDots } from "react-icons/bs";
 import Actions from "./Actions";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 
 import { formatDistanceToNow } from "date-fns";
+import { DeleteIcon } from "@chakra-ui/icons";
+import userAtom from "../atoms/userAtom";
+import { useRecoilValue } from "recoil";
 
 const Post = ({ post, postedBy }) => {
   const showToast = useShowToast();
-  const [liked, setLiked] = useState(false);
   const [user, setUser] = useState(null);
-
   const navigate = useNavigate();
+  const currentUser = useRecoilValue(userAtom);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = React.useRef();
+
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -24,16 +43,36 @@ const Post = ({ post, postedBy }) => {
           showToast("Error", profileUser.message, "error");
           return;
         }
-        console.log(profileUser);
         setUser(profileUser.data);
       } catch (error) {
-        showToast("Error", error, "error");
+        showToast("Error", error.message, "error");
         setUser(null);
       }
     };
 
     getUser();
   }, [postedBy, showToast]);
+
+  const handleDeletePost = async (e) => {
+    try {
+      e.preventDefault();
+
+      const res = await fetch(`/api/v1/posts/${post._id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (data.status === "error") {
+        showToast("Error", data.message, "error");
+        return;
+      }
+      onClose();
+      showToast("Success", data.message, "success");
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    }
+  };
 
   if (!user) return null;
   return (
@@ -106,10 +145,55 @@ const Post = ({ post, postedBy }) => {
               <Image src="/verified.png" h={4} w={4} ml={1} />
             </Flex>
             <Flex gap={4} alignItems={"center"} width={32}>
-              <Text fontSize={"sm"}  color={"gray.light"} >
+              <Text fontSize={"sm"} color={"gray.light"}>
                 {formatDistanceToNow(new Date(post.createdAt))} ago
               </Text>
-              <BsThreeDots />
+
+              {currentUser?._id === user._id ? (
+                <>
+                  <DeleteIcon
+                    size={20}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onOpen();
+                    }}
+                  />
+
+                  <AlertDialog
+                    isOpen={isOpen}
+                    leastDestructiveRef={cancelRef}
+                    onClose={onClose}
+                  >
+                    <AlertDialogOverlay>
+                      <AlertDialogContent>
+                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                          Delete Post
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>
+                          Are you sure you want to delete this post? You
+                          can&apos;t undo this action afterwards.
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter>
+                          <Button ref={cancelRef} onClick={onClose}>
+                            Cancel
+                          </Button>
+                          <Button
+                            colorScheme="red"
+                            onClick={handleDeletePost}
+                            ml={3}
+                          >
+                            Delete
+                          </Button>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialogOverlay>
+                  </AlertDialog>
+                </>
+              ) : (
+                <BsThreeDots />
+              )}
             </Flex>
           </Flex>
           <Text fontSize={"sm"}>{post.text}</Text>
@@ -126,19 +210,7 @@ const Post = ({ post, postedBy }) => {
           )}
 
           <Flex gap={3} my={1}>
-            <Actions liked={liked} setLiked={setLiked} />
-          </Flex>
-
-          <Flex gap={2} alignItems={"center"}>
-            <Text color={"gray.light"} fontSize={"sm"}>
-              {post.replies?.length} replies
-            </Text>
-
-            <Box w={0.5} h={0.5} borderRadius={"full"} bg={"gray.light"}></Box>
-
-            <Text color={"gray.light"} fontSize={"sm"}>
-              {post.likes?.length} likes
-            </Text>
+            <Actions post={post} />
           </Flex>
         </Flex>
       </Flex>

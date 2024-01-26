@@ -17,7 +17,7 @@ const LogoutButton = () => {
         },
       });
       const user = await res.json();
-      console.log(user);
+    
       if (user.status === "error") {
         showToast("Error", user.message, "error");
         return;

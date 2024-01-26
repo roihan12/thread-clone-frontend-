@@ -35,7 +35,7 @@ const SignupCard = () => {
   const setUser = useSetRecoilState(userAtom);
 
   const handleSignup = async () => {
-    console.log(inputs);
+
     try {
       const res = await fetch("/api/v1/users/signup", {
         method: "POST",
