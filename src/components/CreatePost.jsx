@@ -22,6 +22,10 @@ import { useRef, useState } from "react";
 import usePreviewImg from "../hooks/usePreviewImg";
 import { BsFillImageFill } from "react-icons/bs";
 import useShowToast from "../hooks/useShowToast";
+import postsAtom from "../atoms/postsAtom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
+import { useParams } from "react-router-dom";
 
 const MAX_CHAR = 500;
 
@@ -29,11 +33,14 @@ const CreatePost = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [postText, setPostText] = useState("");
   const [remainingChar, setRemainingChar] = useState(MAX_CHAR);
-
+  const user = useRecoilValue(userAtom);
   const fileRef = useRef(null);
   const showToast = useShowToast();
   const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useRecoilState(postsAtom);
+  const { username } = useParams();
 
+  
   const { handleImageChange, imgUrl, setImgUrl } = usePreviewImg();
   const handleTextChange = (e) => {
     const inputText = e.target.value;
@@ -67,6 +74,9 @@ const CreatePost = () => {
       }
 
       showToast("Success", data.message, "success");
+      if (username === user.username) {
+        setPosts([data.data, ...posts]);
+      }
       onClose();
       setPostText("");
       setImgUrl("");
@@ -81,12 +91,13 @@ const CreatePost = () => {
       <Button
         position={"fixed"}
         bottom={10}
-        right={10}
-        leftIcon={<AddIcon />}
+        right={5}
         bg={useColorModeValue("gray.300", "gray.dark")}
         onClick={onOpen}
+        size={{ base: "sm", sm: "md" }}
       >
-        Post
+        {<AddIcon mr={2} />}{" "}
+        <Text display={{ base: "none", xl: "block" }}>Create Post</Text>
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
