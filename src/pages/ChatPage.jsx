@@ -14,12 +14,24 @@ import { GiConversation } from "react-icons/gi";
 import MessageContainer from "../components/MessageContainer";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilState } from "recoil";
-import conversationsAtom from "../atoms/messagesAtom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  conversationsAtom,
+  selectedConversationAtom,
+} from "../atoms/messagesAtom";
+import userAtom from "../atoms/userAtom";
+import { useSocket } from "../context/SocketContext";
 const ChatPage = () => {
   const showToast = useShowToast();
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversations, setConversations] = useRecoilState(conversationsAtom);
+  const [selectedConversation, setSelectedConversation] = useRecoilState(
+    selectedConversationAtom
+  );
+  const [searchText, setSearchText] = useState("");
+  const [searchingUser, setSearchingUser] = useState(false);
+  const currentUser = useRecoilValue(userAtom);
+  const { socket, onlineUsers } = useSocket();
 
   useEffect(() => {
     const getConversations = async () => {
@@ -44,6 +56,62 @@ const ChatPage = () => {
     getConversations();
   }, [showToast, setConversations]);
 
+  const handleConversationSearch = async (e) => {
+    e.preventDefault();
+    setSearchingUser(true);
+
+    try {
+      const res = await fetch(`/api/v1/users/profile/${searchText}`);
+
+      const searchUser = await res.json();
+
+      if (searchUser.status === "error") {
+        showToast("Error", searchUser.message, "error");
+        return;
+      }
+
+      const messagingYourself = searchUser.data._id === currentUser._id;
+      if (messagingYourself) {
+        showToast("Error", "You cannot message yourself", "error");
+        return;
+      }
+
+      const conversationAlreadyExists = conversations.find(
+        (conversation) =>
+          conversation.participants[0]._id === searchUser.data._id
+      );
+      if (conversationAlreadyExists) {
+        setSelectedConversation({
+          _id: conversationAlreadyExists._id,
+          userId: searchUser.data._id,
+          username: searchUser.data.username,
+          userProfilePic: searchUser.data.profilePic,
+        });
+      }
+
+      const mockConversation = {
+        mock: true,
+        lastMessage: {
+          text: "",
+          sender: "",
+        },
+        _id: Date.now(),
+        participants: [
+          {
+            _id: searchUser.data._id,
+            username: searchUser.data.username,
+            profilePic: searchUser.data.profilePic,
+          },
+        ],
+      };
+
+      setConversations((prevConvs) => [...prevConvs, mockConversation]);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setSearchingUser(false);
+    }
+  };
   return (
     <Box
       position={"absolute"}
@@ -79,10 +147,18 @@ const ChatPage = () => {
           >
             Your Conversations
           </Text>
-          <form>
+          <form onSubmit={handleConversationSearch}>
             <Flex alignItems={"center"} gap={2}>
-              <Input placeholder="Search for a user" />
-              <Button size={"sm"}>
+              <Input
+                placeholder="Search for a user"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              <Button
+                size={"sm"}
+                onClick={handleConversationSearch}
+                isLoading={searchingUser}
+              >
                 <SearchIcon />
               </Button>
             </Flex>
@@ -108,25 +184,30 @@ const ChatPage = () => {
               </Flex>
             ))}
 
-          {!loadingConversations && (
+          {!loadingConversations &&
             conversations.map((conversation) => (
-              <Conversation key={conversation._id} conversation={conversation} />
-            )
-          ))}
+              <Conversation
+                key={conversation._id}
+                isOnline={onlineUsers.includes(conversation.participants[0]._id)}
+                conversation={conversation}
+              />
+            ))}
         </Flex>
+        {!selectedConversation._id && (
+          <Flex
+            flex={70}
+            borderRadius={"md"}
+            flexDirection={"column"}
+            alignItems={"center"}
+            justifyContent={"center"}
+            height={"400px"}
+          >
+            <GiConversation size={100} />
+            <Text fontSize={20}>Select a conversation to start messaging</Text>
+          </Flex>
+        )}
 
-        {/* <Flex
-          flex={70}
-          borderRadius={"md"}
-          flexDirection={"column"}
-          alignItems={"center"}
-          justifyContent={"center"}
-          height={"400px"}
-        >
-          <GiConversation size={100} />
-          <Text fontSize={20}>Select a conversation to start messaging</Text>
-        </Flex> */}
-        <MessageContainer />
+        {selectedConversation._id && <MessageContainer />}
       </Flex>
     </Box>
   );

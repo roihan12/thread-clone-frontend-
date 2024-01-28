@@ -1,26 +1,36 @@
 import { Avatar, Flex, Text } from "@chakra-ui/react";
+import { selectedConversationAtom } from "../atoms/messagesAtom";
+import {useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
 
-const Message = ({ ownMessage }) => {
+const Message = ({ ownMessage, message }) => {
+  const selectedConversation = useRecoilValue(selectedConversationAtom);
+
+  const currentUser = useRecoilValue(userAtom);
+
+  // console.log(currentUser);
   return (
     <>
       {ownMessage ? (
         <Flex gap={2} alignSelf={"flex-end"}>
           <Text maxW={"350px"} bg={"blue.400"} p={1} borderRadius={"md"}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. At
-          
+          {message.text}
           </Text>
-          <Avatar src="" w={7} h={7}/>
+          <Avatar src={currentUser.profilePic} w={7} h={7} />
         </Flex>
       ) : (
         <Flex gap={2}>
-             <Avatar src="https://bit.ly/sage-adebayo" w={7} h={7}/>
-        <Text maxW={"350px"} bg={"gray.400"} p={1} borderRadius={"md"} color={"black"}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. At
-        </Text>
-       
-      </Flex>
+          <Avatar src={selectedConversation.userProfilePic} w={7} h={7} />
+          <Text
+            maxW={"350px"}
+            bg={"gray.400"}
+            p={1}
+            borderRadius={"md"}
+            color={"black"}
+          >
+            {message.text}
+          </Text>
+        </Flex>
       )}
     </>
   );

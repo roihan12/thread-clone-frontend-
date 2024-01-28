@@ -6,16 +6,25 @@ import {
   Stack,
   Text,
   WrapItem,
+  useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { BsCheck2All } from "react-icons/bs";
+import { selectedConversationAtom } from "../atoms/messagesAtom";
 
-const Conversation = ({ conversation }) => {
+const Conversation = ({ conversation, isOnline }) => {
   const user = conversation.participants[0];
   const lastMessage = conversation.lastMessage;
   const currentUser = useRecoilValue(userAtom);
+  const [selectedConversation, setSelectedConversation] = useRecoilState(
+    selectedConversationAtom
+  );
+
+  const colorMode = useColorMode();
+
+  // console.log("selected", selectedConversation);
   return (
     <Flex
       gap={4}
@@ -27,6 +36,22 @@ const Conversation = ({ conversation }) => {
         color: "white",
       }}
       borderRadius={"md"}
+      bg={
+        selectedConversation?._id === conversation._id
+          ? colorMode === "light"
+            ? "gray.400"
+            : "gray.dark"
+          : ""
+      }
+      onClick={() =>
+        setSelectedConversation({
+          _id: conversation._id,
+          userId: user._id,
+          userProfilePic: user.profilePic,
+          username: user.username,
+          mock: conversation.mock,
+        })
+      }
     >
       <WrapItem>
         <Avatar
@@ -37,7 +62,7 @@ const Conversation = ({ conversation }) => {
           }}
           src={user.profilePic}
         >
-          <AvatarBadge boxSize={"1em"} bg={"green.500"} />
+          {isOnline ? <AvatarBadge boxSize={"1em"} bg={"green.500"} /> : ""}
         </Avatar>
       </WrapItem>
 
@@ -48,7 +73,11 @@ const Conversation = ({ conversation }) => {
         </Text>
 
         <Text fontSize={"xs"} display={"flex"} alignItems={"center"} gap={1}>
-          {currentUser._id === lastMessage.sender ? <BsCheck2All size={16} /> : ""}
+          {currentUser._id === lastMessage.sender ? (
+            <BsCheck2All size={16} />
+          ) : (
+            ""
+          )}
           {lastMessage.text.length > 18
             ? lastMessage.text.substring(0, 18) + "..."
             : lastMessage.text}
