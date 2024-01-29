@@ -16,16 +16,16 @@ import {
   conversationsAtom,
   selectedConversationAtom,
 } from "../atoms/messagesAtom";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
+import { Link } from "react-router-dom";
+import messageSound from "../assets/sounds/message.mp3";
 
 const MessageContainer = () => {
   const showToast = useShowToast();
 
-  const [selectedConversation, setSelectedConversation] = useRecoilState(
-    selectedConversationAtom
-  );
+  const selectedConversation = useRecoilValue(selectedConversationAtom);
   const [loadingMessages, setLoadingMessages] = useState(true);
 
   const [messages, setMessages] = useState([]);
@@ -39,6 +39,11 @@ const MessageContainer = () => {
     socket.on("newMessage", (message) => {
       if (selectedConversation._id === message.conversationId) {
         setMessages((prevMessages) => [...prevMessages, message]);
+      }
+      // make a sound if the window is not focused
+      if (!document.hasFocus()) {
+        const sound = new Audio(messageSound);
+        sound.play();
       }
 
       setConversations((prev) => {
@@ -60,6 +65,36 @@ const MessageContainer = () => {
 
     return () => socket.off("newMessage");
   }, [socket, selectedConversation, setConversations]);
+
+  useEffect(() => {
+    const lastMessageIsFromOtherUser =
+      messages.length &&
+      messages[messages.length - 1].sender !== currentUser._id;
+
+    if (lastMessageIsFromOtherUser) {
+      socket.emit("markMessagesAsSeen", {
+        conversationId: selectedConversation._id,
+        userId: selectedConversation.userId,
+      });
+    }
+
+    socket.on("messagesSeen", ({ conversationId }) => {
+      if (selectedConversation._id === conversationId) {
+        setMessages((prev) => {
+          const updatedMessages = prev.map((message) => {
+            if (!message.seen) {
+              return {
+                ...message,
+                seen: true,
+              };
+            }
+            return message;
+          });
+          return updatedMessages;
+        });
+      }
+    });
+  }, [socket, currentUser._id, messages, selectedConversation]);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -93,7 +128,7 @@ const MessageContainer = () => {
     };
 
     getMessages();
-  }, [showToast, selectedConversation.userId]);
+  }, [showToast, selectedConversation.userId, selectedConversation.mock]);
 
   return (
     <Flex
@@ -105,13 +140,15 @@ const MessageContainer = () => {
     >
       {/* Message Header */}
 
-      <Flex w={"full"} h={12} alignItems={"center"} gap={2}>
-        <Avatar src={selectedConversation.userProfilePic} size={"sm"} />
-        <Text display={"flex"} alignItems={"center"}>
-          {selectedConversation.username}{" "}
-          <Image src="/verified.png" w={4} h={4} ml={1} />
-        </Text>
-      </Flex>
+      <Link to={`/${selectedConversation.username}`}>
+        <Flex w={"full"} h={12} alignItems={"center"} gap={2}>
+          <Avatar src={selectedConversation.userProfilePic} size={"sm"} />
+          <Text display={"flex"} alignItems={"center"}>
+            {selectedConversation.username}{" "}
+            <Image src="/verified.png" w={4} h={4} ml={1} />
+          </Text>
+        </Flex>
+      </Link>
       <Divider />
 
       {/* Message */}

@@ -161,7 +161,7 @@ const PostPage = () => {
           border={"1px solid"}
           borderColor={"gray.light"}
         >
-          <Image src={currentPost.img} />
+          <Image src={currentPost.img} w={"full"}  />
         </Box>
       )}
 

@@ -8,6 +8,7 @@ import { FiLogOut } from "react-icons/fi";
 import useLogout from "../hooks/useLogout";
 import authScreenAtom from "../atoms/authAtom";
 // import { BsFillChatQuoteFill } from "react-icons/bs";
+import { MdOutlineSettings } from "react-icons/md";
 import { ChatIcon } from "@chakra-ui/icons";
 const Header = () => {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -48,6 +49,10 @@ const Header = () => {
 
           <Link as={RouterLink} to={`/chat`}>
             <ChatIcon  boxSize={5} />
+          </Link>
+
+          <Link as={RouterLink} to={`/chat`}>
+            <MdOutlineSettings size={5} />
           </Link>
 
           <Button size={"xs"} onClick={logout}>
