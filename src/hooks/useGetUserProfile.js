@@ -20,6 +20,10 @@ const useGetUserProfile = () => {
           showToast("Error", data.message, "error");
           return;
         }
+        if (data.data.isFrozen) {
+          setUser(null);
+          return;
+        }
 
         setUser(data.data);
       } catch (error) {

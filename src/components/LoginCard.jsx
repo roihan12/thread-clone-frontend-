@@ -122,6 +122,7 @@ const LoginCard = () => {
               >
                 Login
               </Button>
+              
             </Stack>
             <Stack pt={6}>
               <Text align={"center"}>

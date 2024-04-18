@@ -51,8 +51,8 @@ const Header = () => {
             <ChatIcon  boxSize={5} />
           </Link>
 
-          <Link as={RouterLink} to={`/chat`}>
-            <MdOutlineSettings size={5} />
+          <Link as={RouterLink} to={`/settings`}>
+            <MdOutlineSettings size={20} />
           </Link>
 
           <Button size={"xs"} onClick={logout}>

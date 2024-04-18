@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
 import { useParams } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
-import { Flex, Spinner } from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 import Post from "../components/Post";
 import useGetUserProfile from "../hooks/useGetUserProfile";
 import { useRecoilState } from "recoil";
@@ -18,6 +18,7 @@ const UserPage = () => {
 
   useEffect(() => {
     const getPosts = async () => {
+      if (!user) return;
       setFetchingPosts(true);
       try {
         const res = await fetch(`/api/v1/posts/user/${username}`);
@@ -37,10 +38,8 @@ const UserPage = () => {
     };
 
     getPosts();
-  }, [username, showToast, setPosts]);
+  }, [username, showToast, setPosts, user]);
 
-
-  console.log("post recoil", posts);
   if (!user && loading) {
     return (
       <Flex justifyContent={"center"}>
@@ -49,7 +48,7 @@ const UserPage = () => {
     );
   }
   if (!user && !loading) {
-    return <h1>User not found</h1>;
+    return <Text justifyContent={"center"}>User not found</Text>
   }
   return (
     <>
