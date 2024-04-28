@@ -19,7 +19,7 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
 
 const LoginCard = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,24 +35,20 @@ const LoginCard = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BackendURL}/api/v1/users/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(inputs),
-      });
-
-      const user = await res.json();
-
-      if (user.status === "error") {
+      const res = await AxiosInstance.post(`/api/v1/users/login`, inputs);
+      console.log(res);
+      const user = await res.data;
+      console.log(user);
+      
+      if (res.status === "error") {
         showToast("Error", user.message, "error");
         return;
       }
       localStorage.setItem("user-threads", JSON.stringify(user.data));
       setUser(user.data);
     } catch (error) {
-      showToast("Error", error, "error");
+      console.log(error);
+      showToast("Error", error.response.data.message, "error");
     } finally {
       setLoading(false);
     }
@@ -123,7 +119,6 @@ const LoginCard = () => {
               >
                 Login
               </Button>
-              
             </Stack>
             <Stack pt={6}>
               <Text align={"center"}>

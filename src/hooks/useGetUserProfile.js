@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useShowToast from "./useShowToast";
 import { useParams } from "react-router-dom";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
 
 const useGetUserProfile = () => {
   const [user, setUser] = useState(null);
@@ -12,14 +12,11 @@ const useGetUserProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(
-          `${BackendURL}/api/v1/users/profile/${username}`,
-          {
-            method: "GET",
-          }
+        const res = await AxiosInstance.get(
+          `/api/v1/users/profile/${username}`,
         );
 
-        const data = await res.json();
+        const data = await res.data;
         if (data.status === "error") {
           showToast("Error", data.message, "error");
           return;
@@ -31,7 +28,7 @@ const useGetUserProfile = () => {
 
         setUser(data.data);
       } catch (error) {
-        showToast("Error", error.message, "error");
+        showToast("Error", error.response.data.message, "error");
       } finally {
         setLoading(false);
       }

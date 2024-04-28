@@ -27,6 +27,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { DeleteIcon } from "@chakra-ui/icons";
 import postsAtom from "../atoms/postsAtom";
+import AxiosInstance from "../axios";
 
 const PostPage = () => {
   const { user, loading } = useGetUserProfile();
@@ -44,9 +45,9 @@ const PostPage = () => {
     const getPost = async () => {
       setPosts([]);
       try {
-        const res = await fetch(`/api/v1/posts/${pid}`);
+        const res = await AxiosInstance.get(`/api/v1/posts/${pid}`);
 
-        const data = await res.json();
+        const data = await res.data;
         if (data.status === "error") {
           showToast("Error", data.message, "error");
           return;
@@ -54,7 +55,7 @@ const PostPage = () => {
         console.log(data);
         setPosts([data.data]);
       } catch (error) {
-        showToast("Error", error.message, "error");
+        showToast("Error", error.response.data.message, "error");
       }
     };
 
@@ -63,11 +64,11 @@ const PostPage = () => {
 
   const handleDeletePost = async () => {
     try {
-      const res = await fetch(`/api/v1/posts/${currentPost._id}`, {
+      const res = await AxiosInstance.get(`/api/v1/posts/${currentPost._id}`, {
         method: "DELETE",
       });
 
-      const data = await res.json();
+      const data = await res.data;
 
       if (data.status === "error") {
         showToast("Error", data.message, "error");
@@ -77,7 +78,7 @@ const PostPage = () => {
       showToast("Success", data.message, "success");
       navigate(`/${user.username}`);
     } catch (error) {
-      showToast("Error", error.message, "error");
+      showToast("Error", error.response.data.message, "error");
     }
   };
 

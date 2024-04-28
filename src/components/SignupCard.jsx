@@ -20,7 +20,7 @@ import authScreenAtom from "../atoms/authAtom";
 import { useSetRecoilState } from "recoil";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
 
 const SignupCard = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -37,14 +37,8 @@ const SignupCard = () => {
 
   const handleSignup = async () => {
     try {
-      const res = await fetch(`${BackendURL}/api/v1/users/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(inputs),
-      });
-      const newUser = await res.json();
+      const res = await AxiosInstance.post(`/api/v1/users/signup`, inputs);
+      const newUser = await res.data;
       if (newUser.status === "error") {
         showToast("Error", newUser.message, "error");
         return;
@@ -53,7 +47,7 @@ const SignupCard = () => {
       localStorage.setItem("user-threads", JSON.stringify(newUser.data));
       setUser(newUser.data);
     } catch (error) {
-      showToast("Error", error, "error");
+      showToast("Error", error.response.data.message, "error");
     }
   };
 

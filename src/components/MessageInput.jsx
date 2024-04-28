@@ -23,7 +23,8 @@ import {
 } from "../atoms/messagesAtom";
 import { BsFillImageFill } from "react-icons/bs";
 import usePreviewImg from "../hooks/usePreviewImg";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
+
 const MessageInput = ({ setMessages }) => {
   const [messageText, setMessageText] = useState("");
   const selectedConversation = useRecoilValue(selectedConversationAtom);
@@ -43,7 +44,7 @@ const MessageInput = ({ setMessages }) => {
     setIsSending(true);
 
     try {
-      const res = await fetch(`${BackendURL}/api/v1/messages`, {
+      const res = await AxiosInstance.post(`/api/v1/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +56,7 @@ const MessageInput = ({ setMessages }) => {
         }),
       });
 
-      const data = await res.json();
+      const data = await res.data;
 
       if (data.status === "error") {
         showToast("Error", data.message, "error");
@@ -85,7 +86,7 @@ const MessageInput = ({ setMessages }) => {
       setMessageText("");
       setImgUrl("");
     } catch (error) {
-      showToast("Error", error.message, "error");
+      showToast("Error", error.response.data.message, "error");
     } finally {
       setIsSending(false);
     }
@@ -122,7 +123,6 @@ const MessageInput = ({ setMessages }) => {
           <ModalHeader></ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            
             <Flex mt={5} w={"full"}>
               <Image src={imgUrl} alt="message image" />
             </Flex>

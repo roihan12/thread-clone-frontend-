@@ -19,7 +19,8 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 import postsAtom from "../atoms/postsAtom";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
+
 const Actions = ({ post }) => {
   const user = useRecoilValue(userAtom);
 
@@ -42,14 +43,14 @@ const Actions = ({ post }) => {
 
     setIsLiking(true);
     try {
-      const res = await fetch(`${BackendURL}/api/v1/posts/like/${post._id}`, {
+      const res = await AxiosInstance.put(`/api/v1/posts/like/${post._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      const data = await res.json();
+      const data = await res.data;
       if (data.status === "error")
         return showToast("Error", data.message, "error");
       console.log(data);
@@ -76,7 +77,7 @@ const Actions = ({ post }) => {
 
       setLiked(!liked);
     } catch (error) {
-      showToast("Error", error.message, "error");
+      showToast("Error", error.response.data.message, "error");
     } finally {
       setIsLiking(false);
     }
@@ -93,7 +94,7 @@ const Actions = ({ post }) => {
     setIsReplying(true);
 
     try {
-      const res = await fetch(`${BackendURL}/api/v1/posts/reply/${post._id}`, {
+      const res = await AxiosInstance.put(`/api/v1/posts/reply/${post._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +102,7 @@ const Actions = ({ post }) => {
         body: JSON.stringify({ text: reply }),
       });
 
-      const newReply = await res.json();
+      const newReply = await res.data;
       if (newReply.status === "error")
         return showToast("Error", newReply.message, "error");
       console.log("newreply", newReply);
@@ -121,7 +122,7 @@ const Actions = ({ post }) => {
 
       console.log("newpost", posts);
     } catch (error) {
-      showToast("Error", error.message, "error");
+      showToast("Error", error.response.data.message, "error");
     } finally {
       setIsReplying(false);
     }

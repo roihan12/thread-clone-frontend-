@@ -16,6 +16,7 @@ import userAtom from "../atoms/userAtom";
 import usePreviewImg from "../hooks/usePreviewImg";
 import useShowToast from "../hooks/useShowToast";
 import { useNavigate } from "react-router-dom";
+import AxiosInstance from "../axios";
 
 const UpdateProfilePage = () => {
   const [user, setUser] = useRecoilState(userAtom);
@@ -37,14 +38,11 @@ const UpdateProfilePage = () => {
     if (updating) return;
     setUpdating(true);
     try {
-      const res = await fetch("/api/v1/users/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...inputs, profilePic: imgUrl }),
+      const res = await AxiosInstance.put("/api/v1/users/update", {
+        ...inputs,
+        profilePic: imgUrl,
       });
-      const updateUser = await res.json(); //Updated user object
+      const updateUser = await res.data; //Updated user object
       if (updateUser.status === "error") {
         showToast("Error", updateUser.message, "error");
         return;
@@ -53,7 +51,7 @@ const UpdateProfilePage = () => {
       setUser(updateUser.data);
       localStorage.setItem("user-threads", JSON.stringify(updateUser.data));
     } catch (error) {
-      showToast("Error", error, "error");
+      showToast("Error", error.response.data.message, "error");
     } finally {
       setUpdating(false);
     }
@@ -159,7 +157,7 @@ const UpdateProfilePage = () => {
               _hover={{
                 bg: "red.500",
               }}
-              onClick={()=> navigate(`/${user.username}`)}
+              onClick={() => navigate(`/${user.username}`)}
             >
               Cancel
             </Button>

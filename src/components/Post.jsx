@@ -24,7 +24,7 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import userAtom from "../atoms/userAtom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import postsAtom from "../atoms/postsAtom";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
 
 const Post = ({ post, postedBy }) => {
   const showToast = useShowToast();
@@ -37,11 +37,11 @@ const Post = ({ post, postedBy }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(
-          `${BackendURL}/api/v1/users/profile/${postedBy}`
+        const res = await AxiosInstance.get(
+          `/api/v1/users/profile/${postedBy}`
         );
 
-        const profileUser = await res.json();
+        const profileUser = await res.data;
 
         if (profileUser.status === "error") {
           showToast("Error", profileUser.message, "error");
@@ -49,7 +49,7 @@ const Post = ({ post, postedBy }) => {
         }
         setUser(profileUser.data);
       } catch (error) {
-        showToast("Error", error.message, "error");
+        showToast("Error", error.response.data.message, "error");
         setUser(null);
       }
     };
@@ -61,11 +61,11 @@ const Post = ({ post, postedBy }) => {
     try {
       e.preventDefault();
 
-      const res = await fetch(`${BackendURL}/api/v1/posts/${post._id}`, {
+      const res = await AxiosInstance.delete(`/api/v1/posts/${post._id}`, {
         method: "DELETE",
       });
 
-      const data = await res.json();
+      const data = await res.data;
 
       if (data.status === "error") {
         showToast("Error", data.message, "error");
@@ -73,9 +73,9 @@ const Post = ({ post, postedBy }) => {
       }
       onClose();
       showToast("Success", data.message, "success");
-      setPosts( posts.filter((p) => p._id !== post._id));
+      setPosts(posts.filter((p) => p._id !== post._id));
     } catch (error) {
-      showToast("Error", error.message, "error");
+      showToast("Error", error.response.data.message, "error");
     }
   };
 

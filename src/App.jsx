@@ -12,7 +12,8 @@ import UpdateProfilePage from "./pages/UpdateProfilePage";
 import CreatePost from "./components/CreatePost";
 import ChatPage from "./pages/ChatPage";
 import SettingsPage from "./pages/SettingsPage";
-
+import axios from "axios";
+axios.defaults.withCredentials = true;
 function App() {
   const user = useRecoilValue(userAtom);
   const { pathname } = useLocation();

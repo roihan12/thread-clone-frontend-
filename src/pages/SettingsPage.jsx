@@ -13,6 +13,7 @@ import {
 import React from "react";
 import useShowToast from "../hooks/useShowToast";
 import useLogout from "../hooks/useLogout";
+import AxiosInstance from "../axios";
 
 const SettingsPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -22,13 +23,9 @@ const SettingsPage = () => {
 
   const handlefreezeAccount = async () => {
     try {
-      const res = await fetch("/api/v1/users/freeze", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
+      const res = await AxiosInstance.put("/api/v1/users/freeze",
+        );
+      const data = await res.data;
 
       if (data.status === "error") {
         showToast("Error", data.message, "error");
@@ -41,7 +38,7 @@ const SettingsPage = () => {
         showToast("Success", data.message, "success");
       }
     } catch (error) {
-      showToast("Error: ", error.message, "error");
+      showToast("Error: ", error.response.data.message, "error");
     }
   };
 

@@ -26,7 +26,7 @@ import postsAtom from "../atoms/postsAtom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { useParams } from "react-router-dom";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
 
 const MAX_CHAR = 500;
 
@@ -41,7 +41,6 @@ const CreatePost = () => {
   const [posts, setPosts] = useRecoilState(postsAtom);
   const { username } = useParams();
 
-  
   const { handleImageChange, imgUrl, setImgUrl } = usePreviewImg();
   const handleTextChange = (e) => {
     const inputText = e.target.value;
@@ -59,7 +58,7 @@ const CreatePost = () => {
   const handleCreatePost = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BackendURL}/api/v1/posts/create`, {
+      const res = await AxiosInstance.post(`/api/v1/posts/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +66,7 @@ const CreatePost = () => {
         body: JSON.stringify({ text: postText, img: imgUrl }),
       });
 
-      const data = await res.json();
+      const data = await res.data;
 
       if (data.status === "error") {
         showToast("Success", data.message, "success");
@@ -82,7 +81,7 @@ const CreatePost = () => {
       setPostText("");
       setImgUrl("");
     } catch (error) {
-      showToast("Error", error, "error");
+      showToast("Error", error.response.data.message, "error");
     } finally {
       setLoading(false);
     }

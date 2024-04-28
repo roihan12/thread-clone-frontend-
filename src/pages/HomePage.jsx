@@ -6,7 +6,7 @@ import Post from "../components/Post";
 import postsAtom from "../atoms/postsAtom";
 import { useRecoilState } from "recoil";
 import SuggesstedUsers from "../components/SuggesstedUsers";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
 
 const HomePage = () => {
   const showToast = useShowToast();
@@ -18,11 +18,11 @@ const HomePage = () => {
       setLoading(true);
       setPosts([]);
       try {
-        const res = await fetch(
-          `${BackendURL}/api/v1/posts/feed?page=1&limit=20`
+        const res = await AxiosInstance.get(
+          `/api/v1/posts/feed?page=1&limit=20`
         );
 
-        const allFeedPost = await res.json();
+        const allFeedPost = await res.data;
 
         if (allFeedPost.status === "error") {
           showToast("Error", allFeedPost.message, "error");
@@ -31,7 +31,7 @@ const HomePage = () => {
 
         setPosts(allFeedPost.data.feedPosts);
       } catch (error) {
-        showToast("Error", error, "error");
+        showToast("Error", error.response.data.message, "error");
       } finally {
         setLoading(false);
       }

@@ -2,6 +2,7 @@ import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "./useShowToast";
 import { useNavigate } from "react-router-dom";
+import AxiosInstance from "../axios";
 
 const useLogout = () => {
   const setUser = useSetRecoilState(userAtom);
@@ -9,13 +10,8 @@ const useLogout = () => {
   const navigate = useNavigate();
   const logout = async () => {
     try {
-      const res = await fetch("/api/v1/users/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const user = await res.json();
+      const res = await AxiosInstance.post("/api/v1/users/logout");
+      const user = await res.data;
 
       if (user.status === "error") {
         showToast("Error", user.message, "error");
@@ -25,7 +21,7 @@ const useLogout = () => {
       setUser(null);
       navigate("/auth");
     } catch (error) {
-      showToast("Error", error, "error");
+      showToast("Error", error.response.data.message, "error");
     }
   };
 

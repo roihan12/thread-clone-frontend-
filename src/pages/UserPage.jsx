@@ -7,7 +7,7 @@ import Post from "../components/Post";
 import useGetUserProfile from "../hooks/useGetUserProfile";
 import { useRecoilState } from "recoil";
 import postsAtom from "../atoms/postsAtom";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
 
 const UserPage = () => {
   const { user, loading } = useGetUserProfile();
@@ -22,8 +22,8 @@ const UserPage = () => {
       if (!user) return;
       setFetchingPosts(true);
       try {
-        const res = await fetch(`${BackendURL}/api/v1/posts/user/${username}`);
-        const data = await res.json();
+        const res = await AxiosInstance.get(`/api/v1/posts/user/${username}`);
+        const data = await res.data;
         if (data.status === "error") {
           showToast("Error", data.message, "error");
           return;
@@ -31,7 +31,7 @@ const UserPage = () => {
         console.log(data);
         setPosts(data.data);
       } catch (error) {
-        showToast("Error", error.message, "error");
+        showToast("Error", error.response.data.message, "error");
         setPosts([]);
       } finally {
         setFetchingPosts(false);
@@ -49,7 +49,7 @@ const UserPage = () => {
     );
   }
   if (!user && !loading) {
-    return <Text justifyContent={"center"}>User not found</Text>
+    return <Text justifyContent={"center"}>User not found</Text>;
   }
   return (
     <>

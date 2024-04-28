@@ -21,6 +21,7 @@ import {
 } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
+import AxiosInstance from "../axios";
 const ChatPage = () => {
   const showToast = useShowToast();
   const [loadingConversations, setLoadingConversations] = useState(true);
@@ -57,9 +58,9 @@ const ChatPage = () => {
   useEffect(() => {
     const getConversations = async () => {
       try {
-        const res = await fetch("/api/v1/messages/conversations");
+        const res = await AxiosInstance.get("/api/v1/messages/conversations");
 
-        const data = await res.json();
+        const data = await res.data;
 
         if (data.status === "error") {
           showToast("Error", data.message, "error");
@@ -68,7 +69,7 @@ const ChatPage = () => {
 
         setConversations(data.data);
       } catch (error) {
-        showToast("Error", error.message, "error");
+        showToast("Error", error.response.data.message, "error");
       } finally {
         setLoadingConversations(false);
       }
@@ -82,9 +83,9 @@ const ChatPage = () => {
     setSearchingUser(true);
 
     try {
-      const res = await fetch(`/api/v1/users/profile/${searchText}`);
+      const res = await AxiosInstance.get(`/api/v1/users/profile/${searchText}`);
 
-      const searchUser = await res.json();
+      const searchUser = await res.data;
 
       if (searchUser.status === "error") {
         showToast("Error", searchUser.message, "error");
@@ -128,7 +129,7 @@ const ChatPage = () => {
 
       setConversations((prevConvs) => [...prevConvs, mockConversation]);
     } catch (error) {
-      showToast("Error", error.message, "error");
+      showToast("Error", error.response.data.message, "error");
     } finally {
       setSearchingUser(false);
     }

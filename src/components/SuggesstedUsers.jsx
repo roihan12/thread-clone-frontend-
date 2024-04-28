@@ -2,6 +2,7 @@ import { Box, Flex, Skeleton, SkeletonCircle, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import SuggestedUser from "./SuggestedUser";
 import useShowToast from "../hooks/useShowToast";
+import AxiosInstance from "../axios";
 
 const SuggesstedUsers = () => {
   const [loading, setLoading] = useState(true);
@@ -14,9 +15,9 @@ const SuggesstedUsers = () => {
     const getSuggesstedUsers = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/v1/users/suggested");
+        const res = await AxiosInstance.get("/api/v1/users/suggested");
 
-        const data = await res.json();
+        const data = await res.data;
 
         if (data.status === "error") {
           showToast("Error", data.message, "error");
@@ -27,7 +28,7 @@ const SuggesstedUsers = () => {
 
         console.log(data);
       } catch (error) {
-        showToast("Error", error.message, "error");
+        showToast("Error", error.response.data.message, "error");
       } finally {
         setLoading(false);
       }

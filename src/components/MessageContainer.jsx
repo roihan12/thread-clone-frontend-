@@ -21,7 +21,7 @@ import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
 import { Link } from "react-router-dom";
 import messageSound from "../assets/sounds/message.mp3";
-import { BackendURL } from "../constans";
+import AxiosInstance from "../axios";
 
 const MessageContainer = () => {
   const showToast = useShowToast();
@@ -107,11 +107,11 @@ const MessageContainer = () => {
       setMessages([]);
       try {
         if (selectedConversation.mock) return;
-        const res = await fetch(
-          `${BackendURL}/api/v1/messages/${selectedConversation.userId}`
+        const res = await AxiosInstance.get(
+          `/api/v1/messages/${selectedConversation.userId}`
         );
 
-        const data = await res.json();
+        const data = await res.data;
 
         if (data.status === "error") {
           showToast("Error", data.message, "error");
@@ -122,7 +122,7 @@ const MessageContainer = () => {
 
         setMessages(data.data);
       } catch (error) {
-        showToast("Error", error.message, "error");
+        showToast("Error", error.response.data.message, "error");
       } finally {
         setLoadingMessages(false);
       }
