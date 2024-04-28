@@ -26,6 +26,7 @@ import postsAtom from "../atoms/postsAtom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { useParams } from "react-router-dom";
+import { BackendURL } from "../constans";
 
 const MAX_CHAR = 500;
 
@@ -58,7 +59,7 @@ const CreatePost = () => {
   const handleCreatePost = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/posts/create", {
+      const res = await fetch(`${BackendURL}/api/v1/posts/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

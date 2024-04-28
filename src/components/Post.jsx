@@ -24,6 +24,7 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import userAtom from "../atoms/userAtom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import postsAtom from "../atoms/postsAtom";
+import { BackendURL } from "../constans";
 
 const Post = ({ post, postedBy }) => {
   const showToast = useShowToast();
@@ -36,7 +37,9 @@ const Post = ({ post, postedBy }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`/api/v1/users/profile/${postedBy}`);
+        const res = await fetch(
+          `${BackendURL}/api/v1/users/profile/${postedBy}`
+        );
 
         const profileUser = await res.json();
 
@@ -58,7 +61,7 @@ const Post = ({ post, postedBy }) => {
     try {
       e.preventDefault();
 
-      const res = await fetch(`/api/v1/posts/${post._id}`, {
+      const res = await fetch(`${BackendURL}/api/v1/posts/${post._id}`, {
         method: "DELETE",
       });
 

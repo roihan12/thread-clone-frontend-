@@ -23,6 +23,7 @@ import {
 } from "../atoms/messagesAtom";
 import { BsFillImageFill } from "react-icons/bs";
 import usePreviewImg from "../hooks/usePreviewImg";
+import { BackendURL } from "../constans";
 const MessageInput = ({ setMessages }) => {
   const [messageText, setMessageText] = useState("");
   const selectedConversation = useRecoilValue(selectedConversationAtom);
@@ -42,7 +43,7 @@ const MessageInput = ({ setMessages }) => {
     setIsSending(true);
 
     try {
-      const res = await fetch(`/api/v1/messages`, {
+      const res = await fetch(`${BackendURL}/api/v1/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

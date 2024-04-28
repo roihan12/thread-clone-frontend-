@@ -7,6 +7,7 @@ import Post from "../components/Post";
 import useGetUserProfile from "../hooks/useGetUserProfile";
 import { useRecoilState } from "recoil";
 import postsAtom from "../atoms/postsAtom";
+import { BackendURL } from "../constans";
 
 const UserPage = () => {
   const { user, loading } = useGetUserProfile();
@@ -21,7 +22,7 @@ const UserPage = () => {
       if (!user) return;
       setFetchingPosts(true);
       try {
-        const res = await fetch(`/api/v1/posts/user/${username}`);
+        const res = await fetch(`${BackendURL}/api/v1/posts/user/${username}`);
         const data = await res.json();
         if (data.status === "error") {
           showToast("Error", data.message, "error");

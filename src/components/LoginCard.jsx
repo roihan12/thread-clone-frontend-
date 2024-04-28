@@ -19,6 +19,7 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import { BackendURL } from "../constans";
 
 const LoginCard = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,7 +35,7 @@ const LoginCard = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/users/login", {
+      const res = await fetch(`${BackendURL}/api/v1/users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

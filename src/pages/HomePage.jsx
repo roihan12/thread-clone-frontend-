@@ -6,6 +6,7 @@ import Post from "../components/Post";
 import postsAtom from "../atoms/postsAtom";
 import { useRecoilState } from "recoil";
 import SuggesstedUsers from "../components/SuggesstedUsers";
+import { BackendURL } from "../constans";
 
 const HomePage = () => {
   const showToast = useShowToast();
@@ -17,7 +18,9 @@ const HomePage = () => {
       setLoading(true);
       setPosts([]);
       try {
-        const res = await fetch("/api/v1/posts/feed?page=1&limit=20");
+        const res = await fetch(
+          `${BackendURL}/api/v1/posts/feed?page=1&limit=20`
+        );
 
         const allFeedPost = await res.json();
 
@@ -55,11 +58,15 @@ const HomePage = () => {
           <Post key={post._id} post={post} postedBy={post.postedBy} />
         ))}
       </Box>
-      <Box flex={30} display={{
-        base:"none",
-        md:"block"
-      }}>
-        <SuggesstedUsers/></Box>
+      <Box
+        flex={30}
+        display={{
+          base: "none",
+          md: "block",
+        }}
+      >
+        <SuggesstedUsers />
+      </Box>
     </Flex>
   );
 };

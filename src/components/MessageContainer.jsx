@@ -21,6 +21,7 @@ import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
 import { Link } from "react-router-dom";
 import messageSound from "../assets/sounds/message.mp3";
+import { BackendURL } from "../constans";
 
 const MessageContainer = () => {
   const showToast = useShowToast();
@@ -107,7 +108,7 @@ const MessageContainer = () => {
       try {
         if (selectedConversation.mock) return;
         const res = await fetch(
-          `/api/v1/messages/${selectedConversation.userId}`
+          `${BackendURL}/api/v1/messages/${selectedConversation.userId}`
         );
 
         const data = await res.json();

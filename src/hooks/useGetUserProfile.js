@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useShowToast from "./useShowToast";
 import { useParams } from "react-router-dom";
+import { BackendURL } from "../constans";
 
 const useGetUserProfile = () => {
   const [user, setUser] = useState(null);
@@ -11,9 +12,12 @@ const useGetUserProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`/api/v1/users/profile/${username}`, {
-          method: "GET",
-        });
+        const res = await fetch(
+          `${BackendURL}/api/v1/users/profile/${username}`,
+          {
+            method: "GET",
+          }
+        );
 
         const data = await res.json();
         if (data.status === "error") {

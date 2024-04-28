@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { io } from "socket.io-client";
+import { BackendURL } from "../constans";
 
 const SocketContext = createContext();
 
@@ -15,7 +16,7 @@ export const SocketContextProvider = ({ children }) => {
   const user = useRecoilValue(userAtom);
 
   useEffect(() => {
-    const socket = io("https://thread-api.roihansori.my.id", {
+    const socket = io(BackendURL, {
       query: {
         userId: user?._id,
       },
