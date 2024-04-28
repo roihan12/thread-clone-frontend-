@@ -59,11 +59,8 @@ const CreatePost = () => {
     setLoading(true);
     try {
       const res = await AxiosInstance.post(`/api/v1/posts/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: postText, img: imgUrl }),
+        text: postText,
+        img: imgUrl,
       });
 
       const data = await res.data;

@@ -95,11 +95,7 @@ const Actions = ({ post }) => {
 
     try {
       const res = await AxiosInstance.put(`/api/v1/posts/reply/${post._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: reply }),
+        text: reply,
       });
 
       const newReply = await res.data;

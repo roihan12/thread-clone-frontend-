@@ -45,17 +45,10 @@ const MessageInput = ({ setMessages }) => {
 
     try {
       const res = await AxiosInstance.post(`/api/v1/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          recipientId: selectedConversation.userId,
-          message: messageText,
-          img: imgUrl,
-        }),
+        recipientId: selectedConversation.userId,
+        message: messageText,
+        img: imgUrl,
       });
-
       const data = await res.data;
 
       if (data.status === "error") {
