@@ -12,6 +12,7 @@ export default defineConfig({
         target: "https://thread-api.roihansori.my.id",
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },
